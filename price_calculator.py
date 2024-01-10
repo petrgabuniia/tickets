@@ -9,18 +9,9 @@ import time
 departure_airport = "RIX"
 destination_airport = "AMS"
 departure_date = "2024-3-3"
-departure_date1 = departure_date
 return_date = "2024-3-4"
 
-# Splitting date components
-departure_date = departure_date.split("-")
-return_date = return_date.split("-")
-departure_year = departure_date[0]
-departure_month = departure_date[1]
-departure_day = departure_date[2]
-return_year = return_date[0]
-return_month = return_date[1]
-return_day = return_date[2]
+
 
 # Set up the Chrome webdriver
 options = webdriver.ChromeOptions()
@@ -39,6 +30,8 @@ def accept_cookies(driver):
         accept_button.click()
     except TimeoutException:
         print("No cookie consent popup found or it was not displayed within the timeout.")
+
+
 
 def set_departure_airport(driver, airport_code):
     try:
@@ -72,6 +65,7 @@ def set_destination_airport(driver, airport_code):
 
 
 def find_month(driver, departure_date):
+    departure_date = departure_date.split("-")
     year = departure_date[0]
     month = departure_date[1]
     try:
@@ -85,6 +79,7 @@ def find_month(driver, departure_date):
 
 
 def find_day(driver, departure_date):
+    departure_date = departure_date.split("-")
     day = departure_date[2]
     try:
         target_day_element = WebDriverWait(driver, 10).until(
@@ -92,7 +87,7 @@ def find_day(driver, departure_date):
         )
         target_day_element.click()
     except TimeoutException:
-        print(f"Target day '{departure_day}' not found or not clickable within the timeout.")
+        print(f"Target day '{day}' not found or not clickable within the timeout.")
     time.sleep(1)
 
 
@@ -115,5 +110,13 @@ find_day(driver, departure_date)
 find_month(driver, return_date)
 find_day(driver, return_date)
 print(find_price(driver))
+departure_date = "2024-4-4"
+return_date = "2024-4-5"
+find_month(driver, departure_date)
+find_day(driver, departure_date)
+find_month(driver, return_date)
+find_day(driver, return_date)
+print(find_price(driver))
+
 
 
