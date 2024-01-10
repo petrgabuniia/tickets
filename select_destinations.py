@@ -5,6 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import time
 
+departure_airport = "RIX"
+destination_airport = "AMS"
+
 # Set up the Chrome webdriver
 options = webdriver.ChromeOptions()
 driver = webdriver.Chrome(options=options)
@@ -23,10 +26,7 @@ try:
 except TimeoutException:
     print("No cookie consent popup found or it was not displayed within the timeout.")
 
-# Enter departure and destination airports
-departure_airport = "RIX"
-destination_airport = "AMS"
-
+# Enter departure airport
 departure_input = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'fsf-typeahead') and contains(@class, 'is-index')][1]//input"))
 )
@@ -42,35 +42,20 @@ try:
 except TimeoutException:
     print(f"Departure option '{departure_airport}' button not found or not clickable within the timeout.")
 
-# Wait for the destination input field to be present
+# Enter destination airport
 destination_input = WebDriverWait(driver, 30).until(
     EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'fsf-typeahead') and contains(@class, 'is-index')][2]//input"))
 )
 destination_input.clear()
-destination_input.click()
+destination_input.send_keys(destination_airport)
 
-# Wait for the destination option button to be clickable
 try:
     destination_button = WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.XPATH, f"//div[contains(@class, 'airport') and contains(text(), '{destination_airport}')]//button"))
+        EC.element_to_be_clickable((By.CLASS_NAME, "airport"))
     )
     destination_button.click()
 except TimeoutException:
     print(f"Destination option '{destination_airport}' button not found or not clickable within the timeout.")
 
-# Click on the "Select dates" button
-select_dates_button = driver.find_element(By.XPATH, "//div[contains(@class, 'btn-green')]//button")
-select_dates_button.click()
+time.sleep(10)  
 
-# Wait for the results page to load (you may need to adjust the wait time)
-time.sleep(5)
-
-# Get the ticket prices
-ticket_prices = driver.find_elements(By.XPATH, "//div[contains(@class, 'flight-list-price')]")
-
-# Print the ticket prices
-for index, price_element in enumerate(ticket_prices, start=1):
-    print(f"Option {index}: {price_element.text}")
-
-# Close the browser window
-driver.quit()
