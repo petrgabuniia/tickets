@@ -1,0 +1,2 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[25],{1397:function(p,s,e){p.exports=e.p+"static/media/appstore.2928664f.svg"},1398:function(p,s,e){p.exports=e.p+"static/media/playstore.e3ea015c.svg"}}]);
+//# sourceMappingURL=ad-section~header-ad-block~widget-app-buttons.js.map

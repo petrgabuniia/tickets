@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!-- saved from url=(0260)https://fledge.eu.criteo.com/interest-group?data=75ZNXnxPSCswdVB1RHY1TmQ1NGZ4c21zSE9pSDMxTFFVclNaNUtTUzM2QWYrWitnUldVVmZuNEhUK2FEMEVzanNhVm9iRW1vaW9BTmVCemE5SVVUbktheFBVeGEydWI5eGJ4UEl2QlY4VnpBYk04ZzB4a0RpMW5VTkhNaDZhaGl4YjIrWkhoa2F1YSthaUpoVFpOb3VENWVveWc9PXw -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <!-- Chrome origin trial token -->
+    <meta http-equiv="origin-trial" content="AnolOEEMEnMaCvmUcw/eijaA/Ntx4pke43TW8O1+XFxTL7yMSzmBnkPrjQ33sKmqvREEpLQOE72gUMzHLu9KiAoAAABseyJvcmlnaW4iOiJodHRwczovL2NyaXRlby5jb206NDQzIiwiZmVhdHVyZSI6IlByaXZhY3lTYW5kYm94QWRzQVBJcyIsImV4cGlyeSI6MTY5NTE2Nzk5OSwiaXNTdWJkb21haW4iOnRydWV9">
+</head>
+<body>
+
+<script>
+    if (!navigator.joinAdInterestGroup) {
+        console.log("No fledge for you!");
+    } else {
+        var igs = [];
+        var expiration = 2592000;
+        for (const ig of igs) {
+            navigator.joinAdInterestGroup(ig, expiration);
+        }
+    }
+
+    async function measureAudienceSize() {
+        // Measuring audience size
+        // Register worklet
+        if((!window?.sharedStorage?.worklet?.addModule) || (!window?.sharedStorage?.run)){
+            return;
+        }
+        await window.sharedStorage.worklet.addModule('');
+
+        // Run audience size measurement operation
+        await window.sharedStorage.run('audience-size-measurement', {
+            data: { bucketKey: BigInt('3393188'), contributionValue: 8192}
+        });
+    }
+
+    //TODO reactivate audience-size-measurement
+    //measureAudienceSize();
+
+</script>
+
+
+</body></html>

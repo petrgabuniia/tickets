@@ -1,0 +1,7 @@
+window.Adform.Tracking.TrackingPointId = 29337611;
+window.Adform.Tracking.TrackingPointName = "1_All views";
+try{
+if (location.href.match("tickets.airbaltic.com")) {
+    adf.track(636845, "Tickets");
+}
+}catch(e){}

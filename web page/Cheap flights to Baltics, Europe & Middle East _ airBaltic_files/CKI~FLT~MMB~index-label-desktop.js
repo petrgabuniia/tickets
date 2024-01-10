@@ -1,0 +1,2 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[15],{1354:function(t,s,n){"use strict";n(1403);var e=n(11),a=Object(e.a)({},(function(){var t=this.$createElement;return(this._self._c||t)("section",{staticClass:"glass-wrapper"},[this._t("default")],2)}),[],!1,null,"1098be4a",null);s.a=a.exports},1365:function(t,s,n){},1403:function(t,s,n){"use strict";n(1365)}}]);
+//# sourceMappingURL=CKI~FLT~MMB~index-label-desktop.js.map
