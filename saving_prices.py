@@ -135,7 +135,6 @@ def process_date_cells(driver, date_array):
                 date_column = date_array[0][col_index + 1]
                 date_array[row_index + 1][col_index + 1] = find_price(driver, date_column.strftime("%Y-%-m-%-d"), date_row.strftime("%Y-%-m-%-d"))
                 
-                # date_array[row_index + 1][col_index + 1] = date_row.strftime("%Y-%m-%d"), date_column.strftime("%Y-%m-%d")
 
 
 
@@ -164,13 +163,55 @@ def save_prices(array):
 
     wb.save('output.xlsx')
 
+
+def compare_prices(deaparture_days_tocheck, arrivals_days_tocheck):
+    #Creates array of dates to check
+    today = datetime.date.today()+datetime.timedelta(days=30)   
+    date_array = [[None] + [today + datetime.timedelta(days=i) for i in range(deaparture_days_tocheck)]]
+
+    for i in range(1, arrivals_days_tocheck+deaparture_days_tocheck):
+        date_row = today + datetime.timedelta(days=i)
+        row_data = [date_row] + [date_row > date_column and (date_row - date_column).days <= arrivals_days_tocheck for date_column in date_array[0][1:]]
+        date_array.append(row_data)
+    # Calculates price for each date
+    for row_index, row in enumerate(date_array[1:]):
+        date_row = row[0]
+        for col_index, value in enumerate(row[1:]):
+            if value:
+                date_column = date_array[0][col_index + 1]
+                date_array[row_index + 1][col_index + 1] = find_price(driver, date_column.strftime("%Y-%-m-%-d"), date_row.strftime("%Y-%-m-%-d"))
+    # Saves prices to excel
+    wb = Workbook()
+    ws = wb.active
+    for row_data in date_array:
+        ws.append(row_data)
+    for col_num, cell in enumerate(ws[1], start=1):
+        if col_num > 1:
+            cell.value = str(cell.value)
+
+    for row in ws.iter_rows(min_row=2, max_col=ws.max_column, max_row=ws.max_row):
+        for cell in row:
+            if isinstance(cell.value, datetime.date):
+                cell.value = str(cell.value)
+
+    for row in ws.iter_rows(min_row=2, min_col=2, max_row=ws.max_row, max_col=ws.max_column):
+        for cell in row:
+            if cell.value is not None and cell.value is False:
+                cell.value = 'x'
+
+    wb.save('output.xlsx')
+
+
 accept_cookies(driver)
 set_departure_airport(driver, departure_airport)
 set_destination_airport(driver, destination_airport)
-date_array = create_date_array()
-# print(date_array)
-process_date_cells(driver, date_array)
-save_prices(date_array)
+
+# date_array = create_date_array()
+# process_date_cells(driver, date_array)
+# save_prices(date_array)
+
+compare_prices(2, 3)
+
 #find_price(driver, departure_date, return_date)
 
 
