@@ -5,6 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import time
 import datetime
+import openpyxl
+from openpyxl.styles import NamedStyle
+from openpyxl import Workbook
 
 # Your departure and destination details
 departure_airport = "RIX"
@@ -140,12 +143,34 @@ def print_date_array(date_array):
     for row in date_array:
         print("\t".join(map(lambda x: str(x) if x is not None else "", row)))  
 
+def save_prices(array):
+    wb = Workbook()
+    ws = wb.active
+    for row_data in array:
+        ws.append(row_data)
+    for col_num, cell in enumerate(ws[1], start=1):
+        if col_num > 1:
+            cell.value = str(cell.value)
+
+    for row in ws.iter_rows(min_row=2, max_col=ws.max_column, max_row=ws.max_row):
+        for cell in row:
+            if isinstance(cell.value, datetime.date):
+                cell.value = str(cell.value)
+
+    for row in ws.iter_rows(min_row=2, min_col=2, max_row=ws.max_row, max_col=ws.max_column):
+        for cell in row:
+            if cell.value is not None and cell.value is False:
+                cell.value = 'x'
+
+    wb.save('output.xlsx')
+
 accept_cookies(driver)
 set_departure_airport(driver, departure_airport)
 set_destination_airport(driver, destination_airport)
 date_array = create_date_array()
+# print(date_array)
 process_date_cells(driver, date_array)
-print_date_array(date_array)
+save_prices(date_array)
 #find_price(driver, departure_date, return_date)
 
 
