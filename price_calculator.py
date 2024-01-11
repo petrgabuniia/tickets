@@ -64,10 +64,9 @@ def set_destination_airport(driver, airport_code):
     time.sleep(1)
 
 
-def find_month(driver, departure_date):
-    departure_date = departure_date.split("-")
-    year = departure_date[0]
-    month = departure_date[1]
+def find_month(driver, date):
+    year = date[0]
+    month = date[1]
     try:
         target_month_year_element = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//div[@class='month-select-wrap']//div[@data-date='" + month + "-" + year + "']"))
@@ -78,9 +77,8 @@ def find_month(driver, departure_date):
     time.sleep(1)
 
 
-def find_day(driver, departure_date):
-    departure_date = departure_date.split("-")
-    day = departure_date[2]
+def find_day(driver, date):
+    day = date[2]
     try:
         target_day_element = WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, "//div[contains(@class, 'vc-day') and .//span[contains(@class, 'date') and normalize-space(text())='" + day + "']]"))
@@ -91,7 +89,13 @@ def find_day(driver, departure_date):
     time.sleep(1)
 
 
-def find_price(driver):
+def find_price(driver, departure_date, return_date):
+    departure_date = departure_date.split("-")
+    return_date = return_date.split("-")
+    find_month(driver, departure_date)
+    find_day(driver, departure_date)
+    find_month(driver, return_date)
+    find_day(driver, return_date)
     try:
         price_eur = driver.find_element(By.CLASS_NAME, "selected-price-main")
         price_cents = driver.find_element(By.CLASS_NAME, "selected-price-decimal")
@@ -105,18 +109,10 @@ def find_price(driver):
 accept_cookies(driver)
 set_departure_airport(driver, departure_airport)
 set_destination_airport(driver, destination_airport)
-find_month(driver, departure_date)
-find_day(driver, departure_date)
-find_month(driver, return_date)
-find_day(driver, return_date)
-print(find_price(driver))
+print(find_price(driver, departure_date, return_date))
 departure_date = "2024-4-4"
 return_date = "2024-4-5"
-find_month(driver, departure_date)
-find_day(driver, departure_date)
-find_month(driver, return_date)
-find_day(driver, return_date)
-print(find_price(driver))
+print(find_price(driver, departure_date, return_date))
 
 
 
