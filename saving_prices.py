@@ -119,9 +119,9 @@ def create_date_array():
     days_tocheck = 3 
     date_array = [[None] + [today + datetime.timedelta(days=i) for i in range(days_tocheck)]]
 
-    for i in range(1, days_tocheck*2+1):
+    for i in range(0, days_tocheck*2+1):
         date_row = today + datetime.timedelta(days=i)
-        row_data = [date_row] + [date_row > date_column and (date_row - date_column).days <= days_tocheck for date_column in date_array[0][1:]]
+        row_data = [date_row] + [date_row >= date_column and (date_row - date_column).days <= days_tocheck for date_column in date_array[0][1:]]
         date_array.append(row_data)
 
     return date_array
@@ -166,12 +166,13 @@ def save_prices(array):
 
 def compare_prices(deaparture_days_tocheck, arrivals_days_tocheck):
     #Creates array of dates to check
+    arrivals_days_tocheck = arrivals_days_tocheck - 1
     today = datetime.date.today()+datetime.timedelta(days=30)   
     date_array = [[None] + [today + datetime.timedelta(days=i) for i in range(deaparture_days_tocheck)]]
 
-    for i in range(1, arrivals_days_tocheck+deaparture_days_tocheck):
+    for i in range(0, arrivals_days_tocheck+deaparture_days_tocheck):
         date_row = today + datetime.timedelta(days=i)
-        row_data = [date_row] + [date_row > date_column and (date_row - date_column).days <= arrivals_days_tocheck for date_column in date_array[0][1:]]
+        row_data = [date_row] + [date_row >= date_column and (date_row - date_column).days <= arrivals_days_tocheck for date_column in date_array[0][1:]]
         date_array.append(row_data)
     # Calculates price for each date
     for row_index, row in enumerate(date_array[1:]):
