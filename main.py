@@ -18,7 +18,7 @@ class DateError(Exception):
 
 
 
-def accept_cookies(driver):
+def accept_cookies(driver): #Automaticall accepts cookies
     try:
         cookie_popup = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, "cookie-alert"))
@@ -28,7 +28,7 @@ def accept_cookies(driver):
     except TimeoutException:
         print("No cookie consent popup found or it was not displayed within the timeout.")
 
-def set_departure_airport(driver, airport_code):
+def set_departure_airport(driver, airport_code): #Automatically sets departure airport
     try:
         airport_input = WebDriverWait(driver, 30).until(
             EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'fsf-typeahead') and contains(@class, 'is-index')][1]//input"))
@@ -43,7 +43,7 @@ def set_departure_airport(driver, airport_code):
         raise AirportButtonError(f"Departure option '{airport_code}' button not found or not clickable within the timeout.")
 
 
-def set_destination_airport(driver, airport_code):
+def set_destination_airport(driver, airport_code): #Automatically sets destination airport
     destination_input = WebDriverWait(driver, 30).until(
         EC.presence_of_element_located((By.XPATH, "//div[contains(@class, 'fsf-typeahead') and contains(@class, 'is-index')][2]//input"))
     )
@@ -58,7 +58,7 @@ def set_destination_airport(driver, airport_code):
         raise AirportButtonError(f"Arrival option '{airport_code}' button not found or not clickable within the timeout.")
     time.sleep(1)
 
-def find_month(driver, date):
+def find_month(driver, date): #Finds and selects the month of the flight 
     year = date[0]
     month = date[1]
     try:
@@ -71,7 +71,7 @@ def find_month(driver, date):
     time.sleep(1)
 
 
-def find_day(driver, date):
+def find_day(driver, date): #Finds and selects the day of the flight 
     day = date[2]
     try:
         target_day_element = WebDriverWait(driver, 10).until(
@@ -83,7 +83,7 @@ def find_day(driver, date):
     time.sleep(1)
 
 
-def find_price(driver, departure_date, return_date):
+def find_price(driver, departure_date, return_date): #Finds the price of the flight
     departure_date = departure_date.split("-")
     return_date = return_date.split("-")
     find_month(driver, departure_date)
@@ -99,12 +99,11 @@ def find_price(driver, departure_date, return_date):
         except ValueError:
             return None
     except TimeoutException:
-        # print(f"Target price is not found for these dates.")
+
         return None
     
 
-def create_date_array():
-    # Get today's date
+def create_date_array(): #Creates an array of dates to check
     today = datetime.date.today()+datetime.timedelta(days=30)   
     days_tocheck = 3 
     date_array = [[None] + [today + datetime.timedelta(days=i) for i in range(days_tocheck)]]
@@ -117,7 +116,7 @@ def create_date_array():
     return date_array
 
 
-def process_date_cells(driver, date_array):
+def process_date_cells(driver, date_array): #Calculates the price for each date
     for row_index, row in enumerate(date_array[1:]):
         date_row = row[0]
         for col_index, value in enumerate(row[1:]):
@@ -128,11 +127,11 @@ def process_date_cells(driver, date_array):
 
 
 
-def print_date_array(date_array):
+def print_date_array(date_array): #Prints the array of dates
     for row in date_array:
         print("\t".join(map(lambda x: str(x) if x is not None else "", row)))  
 
-def save_prices(array):
+def save_prices(array): #Saves the array with prices to Excel
     wb = Workbook()
     ws = wb.active
     for row_data in array:
@@ -154,8 +153,7 @@ def save_prices(array):
     wb.save('output.xlsx')
 
 
-def compare_prices(start_day, departure_days_tocheck, arrivals_days_tocheck):
-    # Creates an array of dates to check
+def compare_prices(start_day, departure_days_tocheck, arrivals_days_tocheck): #Makes the whole process of comparing prices
     date_array = [[None] + [start_day + datetime.timedelta(days=i) for i in range(departure_days_tocheck)]]
 
     for i in range(1, arrivals_days_tocheck + departure_days_tocheck):
@@ -169,7 +167,6 @@ def compare_prices(start_day, departure_days_tocheck, arrivals_days_tocheck):
             if value:
                 date_column = date_array[0][col_index + 1]
                 date_array[row_index + 1][col_index + 1] = find_price(driver, date_column.strftime("%Y-%-m-%-d"), date_row.strftime("%Y-%-m-%-d"))
-    # Saves prices to Excel
     wb = Workbook()
     ws = wb.active
     for row_data in date_array:
@@ -190,7 +187,7 @@ def compare_prices(start_day, departure_days_tocheck, arrivals_days_tocheck):
 
     wb.save('output.xlsx')
 
-def get_date():
+def get_date(): #Creates a window to enter the date
     def on_get_date():
         try:
             year, month, day = map(int, (year_entry.get(), month_entry.get(), day_entry.get()))
@@ -201,9 +198,8 @@ def get_date():
             result_label.config(text="Incorrect date format. Please enter a valid date.")
 
     root = tk.Tk()
-    root.title("Date Entry")
+    root.title("Date to start checking prices from")
 
-    # Define entry variables in the outer scope
     year_entry = ttk.Entry(root)
     month_entry = ttk.Entry(root)
     day_entry = ttk.Entry(root)
@@ -221,38 +217,80 @@ def get_date():
     root.mainloop()
     return getattr(root, 'result', None)
 
+def get_string(message): #Creates a window to enter airport code
+    def on_get_string():
+        result_str = date_entry.get()
+        root.result = result_str
+        root.destroy()
+    root = tk.Tk()
+    root.title(message)
+    date_entry = ttk.Entry(root)
+    date_entry.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+    ttk.Button(root, text="Done", command=on_get_string).grid(row=1, column=0, columnspan=2, pady=10)
+    result_label = ttk.Label(root, text="")
+    result_label.grid(row=2, column=0, columnspan=2, pady=5)
+    root.mainloop()
+
+    return getattr(root, 'result', None)
+    
+
+
+def get_integer(message): #Creates a window to enter the number of days
+    def on_get_integer():
+        try:
+            result_int = int(entry.get())
+            if 0 < result_int <= 25:
+                root.result = result_int
+                root.destroy()
+            else:
+                error_label.config(text="Please enter an integer between 1 and 25.")
+        except ValueError:
+            error_label.config(text="Please enter a valid integer.")
+
+    root = tk.Tk()
+    root.title(message)
+
+    entry = ttk.Entry(root)
+    entry.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+
+    ttk.Button(root, text="Done", command=on_get_integer).grid(row=1, column=0, columnspan=2, pady=10)
+
+    error_label = ttk.Label(root, text="")
+    error_label.grid(row=2, column=0, columnspan=2, pady=5)
+
+    root.mainloop()
+    return getattr(root, 'result', None)
 
 
 
-
-
-
-# Your departure and destination details
-departure_airport = "RIX"
-destination_airport = "AMS"
-
-# Set up the Chrome webdriver
-options = webdriver.ChromeOptions()
-driver = webdriver.Chrome(options=options)
-
-# Navigate to the AirBaltic website
-url = "https://www.airbaltic.com/en-LV/index"
-driver.get(url)
 
 start_day = get_date()
+
+# Your departure, destination and date details
+departure_airport = get_string("Departure Airport Code")
+departure_airport = departure_airport.upper()
+departure_airport = departure_airport.replace(" ", "")
+destination_airport = get_string("Destination Airport Code")
+destination_airport = destination_airport.upper()
+destination_airport = destination_airport.replace(" ", "")
+depatrure_days_tocheck = get_integer("How many days to check for departure?")
+arrival_days_tocheck = get_integer("What is the maksimal length of your trip?")
+
+
+options = webdriver.ChromeOptions()
+driver = webdriver.Chrome(options=options)
+url = "https://www.airbaltic.com/en-LV/index"
+driver.get(url)
 
 try:
     accept_cookies(driver)
     set_departure_airport(driver, departure_airport)
     set_destination_airport(driver, destination_airport)
-    compare_prices(start_day, 3, 3)
-
-    # The following code will not be executed if an AirportButtonError occurs.
-    # Place your additional logic here.
+    compare_prices(start_day, depatrure_days_tocheck, depatrure_days_tocheck)
 
 except (AirportButtonError, TimeoutException, Exception) as e:
     print(f"Error: {e}")
-    # Add any cleanup code or exit the program as needed
+
 finally:
-    # Add any cleanup code here
     driver.quit()
+
