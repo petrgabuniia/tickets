@@ -6,6 +6,9 @@ from selenium.common.exceptions import TimeoutException
 import time
 import datetime
 from openpyxl import Workbook
+import tkinter as tk
+from tkinter import ttk
+from datetime import date
 
 class AirportButtonError(Exception):
     pass
@@ -13,19 +16,7 @@ class AirportButtonError(Exception):
 class DateError(Exception):
     pass
 
-# Your departure and destination details
-departure_airport = "RIX"
-destination_airport = "AMS"
-departure_date = "2024-3-11"
-return_date = "2024-3-13"
 
-# Set up the Chrome webdriver
-options = webdriver.ChromeOptions()
-driver = webdriver.Chrome(options=options)
-
-# Navigate to the AirBaltic website
-url = "https://www.airbaltic.com/en-LV/index"
-driver.get(url)
 
 def accept_cookies(driver):
     try:
@@ -199,7 +190,56 @@ def compare_prices(start_day, departure_days_tocheck, arrivals_days_tocheck):
 
     wb.save('output.xlsx')
 
-start_day = datetime.date.today() + datetime.timedelta(days=30)
+def get_date():
+    def on_get_date():
+        try:
+            year, month, day = map(int, (year_entry.get(), month_entry.get(), day_entry.get()))
+            selected_date = date(year, month, day)
+            root.result = selected_date
+            root.destroy()
+        except ValueError:
+            result_label.config(text="Incorrect date format. Please enter a valid date.")
+
+    root = tk.Tk()
+    root.title("Date Entry")
+
+    # Define entry variables in the outer scope
+    year_entry = ttk.Entry(root)
+    month_entry = ttk.Entry(root)
+    day_entry = ttk.Entry(root)
+
+    entries = {"Year:": year_entry, "Month:": month_entry, "Day:": day_entry}
+    for i, (label_text, entry_widget) in enumerate(entries.items()):
+        ttk.Label(root, text=label_text).grid(row=i, column=0, padx=5, pady=5, sticky="e")
+        entry_widget.grid(row=i, column=1, padx=5, pady=5)
+
+    ttk.Button(root, text="Get Date", command=on_get_date).grid(row=i + 1, column=0, columnspan=2, pady=10)
+
+    result_label = ttk.Label(root, text="")
+    result_label.grid(row=i + 2, column=0, columnspan=2, pady=5)
+
+    root.mainloop()
+    return getattr(root, 'result', None)
+
+
+
+
+
+
+
+# Your departure and destination details
+departure_airport = "RIX"
+destination_airport = "AMS"
+
+# Set up the Chrome webdriver
+options = webdriver.ChromeOptions()
+driver = webdriver.Chrome(options=options)
+
+# Navigate to the AirBaltic website
+url = "https://www.airbaltic.com/en-LV/index"
+driver.get(url)
+
+start_day = get_date()
 
 try:
     accept_cookies(driver)
