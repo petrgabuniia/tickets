@@ -5,17 +5,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 import time
 import datetime
-import openpyxl
-from openpyxl.styles import NamedStyle
 from openpyxl import Workbook
+
+class AirportButtonError(Exception):
+    pass
+
+class DateError(Exception):
+    pass
 
 # Your departure and destination details
 departure_airport = "RIX"
 destination_airport = "AMS"
 departure_date = "2024-3-11"
 return_date = "2024-3-13"
-
-
 
 # Set up the Chrome webdriver
 options = webdriver.ChromeOptions()
@@ -35,8 +37,6 @@ def accept_cookies(driver):
     except TimeoutException:
         print("No cookie consent popup found or it was not displayed within the timeout.")
 
-
-
 def set_departure_airport(driver, airport_code):
     try:
         airport_input = WebDriverWait(driver, 30).until(
@@ -49,7 +49,7 @@ def set_departure_airport(driver, airport_code):
         )
         airport_button.click()
     except TimeoutException:
-        print(f"Departure option '{airport_code}' button not found or not clickable within the timeout.")
+        raise AirportButtonError(f"Departure option '{airport_code}' button not found or not clickable within the timeout.")
 
 
 def set_destination_airport(driver, airport_code):
@@ -64,9 +64,8 @@ def set_destination_airport(driver, airport_code):
         )
         destination_button.click()
     except TimeoutException:
-        print(f"Destination option '{airport_code}' button not found or not clickable within the timeout.")
+        raise AirportButtonError(f"Arrival option '{airport_code}' button not found or not clickable within the timeout.")
     time.sleep(1)
-
 
 def find_month(driver, date):
     year = date[0]
@@ -77,7 +76,7 @@ def find_month(driver, date):
         )
         target_month_year_element.click()
     except TimeoutException:
-        print(f"Target month '{month} {year}' not found or not clickable within the timeout.")
+        raise DateError(f"Target month '{month} {year}' not found or not clickable within the timeout.")
     time.sleep(1)
 
 
@@ -89,7 +88,7 @@ def find_day(driver, date):
         )
         target_day_element.click()
     except TimeoutException:
-        print(f"Target day '{day}' not found or not clickable within the timeout.")
+        raise DateError(f"Target day '{day}' not found or not clickable within the timeout.")
     time.sleep(1)
 
 
@@ -119,9 +118,9 @@ def create_date_array():
     days_tocheck = 3 
     date_array = [[None] + [today + datetime.timedelta(days=i) for i in range(days_tocheck)]]
 
-    for i in range(0, days_tocheck*2+1):
+    for i in range(1, days_tocheck*2+1):
         date_row = today + datetime.timedelta(days=i)
-        row_data = [date_row] + [date_row >= date_column and (date_row - date_column).days <= days_tocheck for date_column in date_array[0][1:]]
+        row_data = [date_row] + [date_row > date_column and (date_row - date_column).days <= days_tocheck for date_column in date_array[0][1:]]
         date_array.append(row_data)
 
     return date_array
@@ -164,24 +163,22 @@ def save_prices(array):
     wb.save('output.xlsx')
 
 
-def compare_prices(deaparture_days_tocheck, arrivals_days_tocheck):
-    #Creates array of dates to check
-    arrivals_days_tocheck = arrivals_days_tocheck - 1
-    today = datetime.date.today()+datetime.timedelta(days=30)   
-    date_array = [[None] + [today + datetime.timedelta(days=i) for i in range(deaparture_days_tocheck)]]
+def compare_prices(start_day, departure_days_tocheck, arrivals_days_tocheck):
+    # Creates an array of dates to check
+    date_array = [[None] + [start_day + datetime.timedelta(days=i) for i in range(departure_days_tocheck)]]
 
-    for i in range(0, arrivals_days_tocheck+deaparture_days_tocheck):
-        date_row = today + datetime.timedelta(days=i)
-        row_data = [date_row] + [date_row >= date_column and (date_row - date_column).days <= arrivals_days_tocheck for date_column in date_array[0][1:]]
+    for i in range(1, arrivals_days_tocheck + departure_days_tocheck):
+        date_row = start_day + datetime.timedelta(days=i)
+        row_data = [date_row] + [date_row > date_column and (date_row - date_column).days <= arrivals_days_tocheck for date_column in date_array[0][1:]]
         date_array.append(row_data)
-    # Calculates price for each date
+    # Calculates the price for each date
     for row_index, row in enumerate(date_array[1:]):
         date_row = row[0]
         for col_index, value in enumerate(row[1:]):
             if value:
                 date_column = date_array[0][col_index + 1]
                 date_array[row_index + 1][col_index + 1] = find_price(driver, date_column.strftime("%Y-%-m-%-d"), date_row.strftime("%Y-%-m-%-d"))
-    # Saves prices to excel
+    # Saves prices to Excel
     wb = Workbook()
     ws = wb.active
     for row_data in date_array:
@@ -202,18 +199,20 @@ def compare_prices(deaparture_days_tocheck, arrivals_days_tocheck):
 
     wb.save('output.xlsx')
 
+start_day = datetime.date.today() + datetime.timedelta(days=30)
 
-accept_cookies(driver)
-set_departure_airport(driver, departure_airport)
-set_destination_airport(driver, destination_airport)
+try:
+    accept_cookies(driver)
+    set_departure_airport(driver, departure_airport)
+    set_destination_airport(driver, destination_airport)
+    compare_prices(start_day, 3, 3)
 
-# date_array = create_date_array()
-# process_date_cells(driver, date_array)
-# save_prices(date_array)
+    # The following code will not be executed if an AirportButtonError occurs.
+    # Place your additional logic here.
 
-compare_prices(2, 3)
-
-#find_price(driver, departure_date, return_date)
-
-
-
+except (AirportButtonError, TimeoutException, Exception) as e:
+    print(f"Error: {e}")
+    # Add any cleanup code or exit the program as needed
+finally:
+    # Add any cleanup code here
+    driver.quit()
