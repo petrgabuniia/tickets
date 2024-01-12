@@ -274,7 +274,7 @@ else:
 
 
 
-start_day = get_date()
+
 
 # Your departure, destination and date details
 departure_airport = get_string("Departure Airport Code")
@@ -283,6 +283,7 @@ departure_airport = departure_airport.replace(" ", "")
 destination_airport = get_string("Destination Airport Code")
 destination_airport = destination_airport.upper()
 destination_airport = destination_airport.replace(" ", "")
+start_day = get_date()
 depatrure_days_tocheck = get_integer("How many days to check for departure?")
 arrival_days_tocheck = get_integer("What is the maksimal length of your trip?")
 
