@@ -27,5 +27,6 @@ Pērkot biļeti uz lidmašīnu, autors ir pamanījis, ka izvēlējoties biļeti 
 * **README.md** - dokumentācijas fails
 * **.gitignore** - git ignorēšanas fails (saglabā norādītos failus tikai lokāli)
 * **requirements.txt** - nepieciešamo bibliotēku lejupielādes fails
+* * **web page** - mape, tajā saglābāts AirBaltic mājaslapas kods, kuram izstradātā programma, gadījuma ja mājaslapas kods tiks mainīts, programmas darbspējību iespējams parbaud'īt izmantojot sagalbāto mājaslapas kodu. 
 
 
