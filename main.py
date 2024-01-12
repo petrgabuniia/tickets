@@ -9,6 +9,7 @@ from openpyxl import Workbook
 import tkinter as tk
 from tkinter import ttk
 from datetime import date
+import os
 
 class AirportButtonError(Exception):
     pass
@@ -262,6 +263,15 @@ def get_integer(message): #Creates a window to enter the number of days
     return getattr(root, 'result', None)
 
 
+current_directory = os.path.dirname(os.path.abspath(__file__))
+file_to_delete = "output.xlsx"
+file_path = os.path.join(current_directory, file_to_delete)
+if os.path.exists(file_path):
+    os.remove(file_path)
+    print(f"{file_to_delete} deleted successfully.")
+else:
+    print(f"{file_to_delete} not found in the directory.")
+
 
 
 start_day = get_date()
@@ -286,7 +296,7 @@ try:
     accept_cookies(driver)
     set_departure_airport(driver, departure_airport)
     set_destination_airport(driver, destination_airport)
-    compare_prices(start_day, depatrure_days_tocheck, depatrure_days_tocheck)
+    compare_prices(start_day, depatrure_days_tocheck, arrival_days_tocheck)
 
 except (AirportButtonError, TimeoutException, Exception) as e:
     print(f"Error: {e}")
